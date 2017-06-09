@@ -138,9 +138,11 @@
                         </ui:PreferencesField>
 
                         <ui:PreferencesField Header="Shortcuts Only">
-                            <CheckBox IsChecked="{Binding Settings.DetectShortcutsOnly}" />
+                            <CheckBox IsChecked="{Binding Settings.DetectShortcutsOnly}" Content="shows only keys which are listed in keymaps folder" />
                         </ui:PreferencesField>
-                        <ui:PreferencesField Header="Show Application Icon">
+						<ui:PreferencesField Header="Show Only Modifiers">
+						</ui:PreferencesField>
+						<ui:PreferencesField Header="Show Application Icon">
                             <CheckBox IsChecked="{Binding Settings.ShowApplicationIcon}" />
                         </ui:PreferencesField>
                     </StackPanel>
