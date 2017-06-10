@@ -141,6 +141,7 @@
                             <CheckBox IsChecked="{Binding Settings.DetectShortcutsOnly}" Content="shows only keys which are listed in keymaps folder" />
                         </ui:PreferencesField>
 						<ui:PreferencesField Header="Show Only Modifiers">
+							<CheckBox IsChecked="{Binding Settings.ShowOnlyModifiers}" Content="shows only keys which have ctrl, shift, alt or windows" />
 						</ui:PreferencesField>
 						<ui:PreferencesField Header="Show Application Icon">
                             <CheckBox IsChecked="{Binding Settings.ShowApplicationIcon}" />
