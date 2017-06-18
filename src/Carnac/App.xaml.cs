@@ -1,5 +1,4 @@
 ﻿using System;
-using System.IO;
 using System.Reactive.Linq;
 using System.Windows;
 using Carnac.Logic;
@@ -9,6 +8,10 @@ using Carnac.UI;
 using Carnac.Utilities;
 using SettingsProviderNet;
 using Squirrel;
+using EventHook;
+using EventHook.Hooks;
+
+
 
 namespace Carnac
 {
@@ -33,9 +36,10 @@ namespace Carnac
             messageProvider = new MessageProvider(new ShortcutProvider(), keyProvider, settings);
         }
 
+
         protected override void OnStartup(StartupEventArgs e)
         {
-            // Check if there was instance before this. If there was-close the current one.  
+            // Check if there was instance before this. If there was-close the current one.
             if (ProcessUtilities.ThisProcessIsAlreadyRunning())
             {
                 ProcessUtilities.SetFocusToPreviousInstance("Carnac");
@@ -46,11 +50,46 @@ namespace Carnac
             trayIcon = new CarnacTrayIcon();
             trayIcon.OpenPreferences += TrayIconOnOpenPreferences;
             var keyShowViewModel = new KeyShowViewModel(settings);
+
             keyShowView = new KeyShowView(keyShowViewModel);
             keyShowView.Show();
 
             carnac = new KeysController(keyShowViewModel.Messages, messageProvider, new ConcurrencyService(), settingsProvider);
             carnac.Start();
+
+            MouseWatcher.OnMouseInput += (s, me) =>
+            {
+                Dispatcher.Invoke(() =>
+                {
+                    if (!keyShowView.IsVisible) return;
+                    keyShowViewModel.CursorPosition = keyShowView.PointFromScreen(new System.Windows.Point(me.Point.x, me.Point.y));
+                    if (me.Message == MouseMessages.WM_LBUTTONUP)
+                    {
+                        keyShowView.LeftClick();
+                    }
+                    if (me.Message == MouseMessages.WM_RBUTTONUP)
+                    {
+                        keyShowView.RightClick();
+                    }
+                });
+            };
+
+            if (settings.ShowMouseClicks)
+            {
+                MouseWatcher.Start();
+            }
+            settings.PropertyChanged += (s, se) => {
+                switch (se.PropertyName)
+                {
+                    case "ShowMouseClicks":
+                        if (this.settings.ShowMouseClicks) {
+                            MouseWatcher.Start();
+                        } else {
+                            MouseWatcher.Stop();
+                        }
+                        break;
+                }
+            };
 
 #if !DEBUG
             Observable
