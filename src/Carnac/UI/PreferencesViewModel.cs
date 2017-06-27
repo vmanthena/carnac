@@ -46,6 +46,14 @@ namespace Carnac.UI
 
                 AvailableColors.Add(availableColor);
             }
+            if (LeftClickColor == null)
+            {
+                LeftClickColor = new AvailableColor("OrangeRed", Colors.OrangeRed);
+            }
+            if (RightClickColor == null)
+            {
+                RightClickColor = new AvailableColor("RoyalBlue", Colors.RoyalBlue);
+            }
 
             SaveCommand = new DelegateCommand(SaveSettings);
             ResetToDefaultsCommand = new DelegateCommand(() => settingsProvider.ResetToDefaults<PopupSettings>());
