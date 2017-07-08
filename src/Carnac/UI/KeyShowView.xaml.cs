@@ -23,7 +23,7 @@ namespace Carnac.UI
         protected override void OnSourceInitialized(EventArgs e)
         {
             base.OnSourceInitialized(e);
-
+            /*
             var hwnd = new WindowInteropHelper(this).Handle;
             Win32Methods.SetWindowExTransparent(hwnd);
             var timer = new Timer(100);
@@ -41,6 +41,7 @@ namespace Carnac.UI
             Left = vm.Settings.Left;
             vm.Settings.LeftChanged += SettingsLeftChanged;
             WindowState = WindowState.Maximized;
+            */
         }
 
         [DllImport("user32.dll", SetLastError = true)]

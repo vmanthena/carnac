@@ -10,6 +10,7 @@ using Carnac.Logic.KeyMonitor;
 using Carnac.Logic.Models;
 using Microsoft.Win32;
 using System.Windows.Media;
+using System.Reactive.Subjects;
 
 namespace Carnac.Logic
 {
@@ -19,6 +20,8 @@ namespace Carnac.Logic
         readonly Dictionary<int, Process> processes;
         readonly IPasswordModeService passwordModeService;
         readonly IDesktopLockEventService desktopLockEventService;
+
+        readonly Subject<KeyPress> proxy;
 
         private readonly IList<Keys> modifierKeys =
             new List<Keys>
@@ -50,12 +53,10 @@ namespace Carnac.Logic
             this.interceptKeysSource = interceptKeysSource;
             this.passwordModeService = passwordModeService;
             this.desktopLockEventService = desktopLockEventService;
-        }
 
-        public IObservable<KeyPress> GetKeyStream()
-        {
+
             // We are using an observable create to tie the lifetimes of the session switch stream and the keystream
-            return Observable.Create<KeyPress>(observer =>
+            var source = Observable.Create<KeyPress>(observer =>
             {
                 // When desktop is locked we will not get the keyup, because we track the windows key
                 // specially we need to set it to not being pressed anymore
@@ -76,6 +77,15 @@ namespace Carnac.Logic
 
                 return new CompositeDisposable(sessionSwitchStreamSubscription, keyStreamSubsription);
             });
+            proxy = new Subject<KeyPress>();
+            source.Subscribe(proxy);
+
+        }
+
+        public ISubject<KeyPress, KeyPress> GetKeyStream()
+        {
+
+            return proxy;
         }
 
         InterceptKeyEventArgs DetectWindowsKey(InterceptKeyEventArgs interceptKeyEventArgs)

@@ -1,10 +1,11 @@
 using System;
 using Carnac.Logic.Models;
+using System.Reactive.Subjects;
 
 namespace Carnac.Logic
 {
     public interface IKeyProvider
     {
-        IObservable<KeyPress> GetKeyStream();
+        ISubject<KeyPress, KeyPress> GetKeyStream();
     }
 }

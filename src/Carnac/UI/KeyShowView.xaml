@@ -5,10 +5,11 @@
         xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
         xmlns:ui="clr-namespace:Carnac.UI"
         mc:Ignorable="d"
-        x:Class="Carnac.UI.KeyShowView" Title="KeyShowView" ShowInTaskbar="False" AllowsTransparency="True"
-        Background="Transparent" BorderBrush="Transparent" WindowStartupLocation="Manual" Top="0" Loaded="WindowLoaded"
-        WindowStyle="None" SnapsToDevicePixels="True" FontSize="{Binding Settings.FontSize}" Focusable="False"
-        Topmost="True" x:Name="This" d:DataContext="{d:DesignInstance ui:KeyShowViewModel}">
+        x:Class="Carnac.UI.KeyShowView" Title="KeyShowView" ShowInTaskbar="True" AllowsTransparency="False"
+        Background="Green" BorderBrush="Green" WindowStartupLocation="Manual" Top="0" Loaded="WindowLoaded"
+        WindowStyle="SingleBorderWindow" SnapsToDevicePixels="True" FontSize="{Binding Settings.FontSize}" Focusable="False"
+		Width="1920" Height="1080"
+        Topmost="False" x:Name="This">
     <Window.Resources>
         <CollectionViewSource x:Key="KeysViewSource" Source="{Binding Messages}">
             <CollectionViewSource.SortDescriptions>
