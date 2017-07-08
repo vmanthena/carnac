@@ -29,7 +29,7 @@ namespace Carnac.Logic.Models
         [DefaultValue("OrangeRed")]
         public string LeftClickColor { get; set; }
 
-        [DefaultValue("RoyaleBlue")]
+        [DefaultValue("RoyalBlue")]
         public string RightClickColor { get; set; }
 
         [DefaultValue(1)]
