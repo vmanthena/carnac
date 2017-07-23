@@ -6,6 +6,8 @@ using System.Windows.Interop;
 using System.Windows.Media.Animation;
 using Carnac.Logic;
 using Gma.System.MouseKeyHook;
+using System.Drawing;
+using System.Text;
 
 namespace Carnac.UI
 {
@@ -24,7 +26,7 @@ namespace Carnac.UI
         protected override void OnSourceInitialized(EventArgs e)
         {
             base.OnSourceInitialized(e);
-
+            /*
             var hwnd = new WindowInteropHelper(this).Handle;
             Win32Methods.SetWindowExTransparentAndNotInWindowList(hwnd);
             var timer = new Timer(100);
@@ -38,11 +40,11 @@ namespace Carnac.UI
                 };
 
             timer.Start();
-
+            */
             var vm = ((KeyShowViewModel)DataContext);
             Left = vm.Settings.Left;
             vm.Settings.LeftChanged += SettingsLeftChanged;
-            WindowState = WindowState.Maximized;
+            //WindowState = WindowState.Maximized;
             if (vm.Settings.ShowMouseClicks)
             {
                 SetupMouseEvents();
@@ -108,7 +110,7 @@ namespace Carnac.UI
             WindowState = WindowState.Normal;
             var vm = ((KeyShowViewModel)DataContext);
             Left = vm.Settings.Left;
-            WindowState = WindowState.Maximized;
+            //WindowState = WindowState.Maximized;
         }
 
         void Settings_PropertyChanged(object sender, System.ComponentModel.PropertyChangedEventArgs e)
@@ -168,11 +170,91 @@ namespace Carnac.UI
             }
             sb.Begin();
         }
-
+        /*
         private void OnMouseMove(object sender, System.Windows.Forms.MouseEventArgs e)
         {
             var vm = ((KeyShowViewModel)DataContext);
             vm.CursorPosition = PointFromScreen(new Point(e.X, e.Y));
+        }
+        */
+        private void OnMouseMove(object sender, System.Windows.Forms.MouseEventArgs e)
+        {
+            var vm = ((KeyShowViewModel)DataContext);
+            WindowInfo wi = new WindowInfo(new IntPtr(GetForegroundWindow()));
+            var window = PointFromScreen(new System.Windows.Point(e.X, e.Y));
+            var rect = PointFromScreen(new System.Windows.Point(wi.Rect.X, wi.Rect.Y));
+            vm.CursorPosition = new System.Windows.Point(window.X - rect.X, window.Y - rect.Y);
+        }
+
+        public const int WM_GETTEXT = 0xD;
+        public const int WM_GETTEXTLENGTH = 0x000E;
+
+
+        [DllImport("User32.dll")]
+        private static extern int GetForegroundWindow();
+
+        [DllImport("user32.dll", CharSet = CharSet.Auto)]
+        public static extern int GetClassName(IntPtr handle, StringBuilder ClassName, int MaxCount);
+
+        [DllImport("user32.dll")]
+        public static extern int SendMessage(IntPtr handle, int msg, int Param1, int Param2);
+
+        [DllImport("user32.dll")]
+        public static extern int SendMessage(IntPtr handle, int msg, int Param, System.Text.StringBuilder text);
+
+        [DllImport("user32.dll")]
+        [return: MarshalAs(UnmanagedType.Bool)]
+        public static extern bool GetWindowRect(IntPtr handle, out RECT Rect);
+
+        [StructLayout(LayoutKind.Sequential)]
+        public struct RECT
+        {
+            public int Left;
+            public int Top;
+            public int Right;
+            public int Bottom;
+        }
+
+        public static string GetWindowClassName(IntPtr handle)
+        {
+            StringBuilder buffer = new StringBuilder(128);
+            GetClassName(handle, buffer, buffer.Capacity);
+            return buffer.ToString();
+        }
+
+        public static string GetWindowText(IntPtr handle)
+        {
+            StringBuilder buffer = new StringBuilder(SendMessage(handle, WM_GETTEXTLENGTH, 0, 0) + 1);
+            SendMessage(handle, WM_GETTEXT, buffer.Capacity, buffer);
+            return buffer.ToString();
+        }
+
+        public static Rectangle GetWindowRectangle(IntPtr handle)
+        {
+            RECT rect = new RECT();
+            GetWindowRect(handle, out rect);
+            return new Rectangle(rect.Left, rect.Top, (rect.Right - rect.Left) + 1, (rect.Bottom - rect.Top) + 1);
+        }
+
+        public class WindowInfo
+        {
+            public IntPtr Handle;
+            public string ClassName;
+            public string Text;
+            public Rectangle Rect;
+
+            public WindowInfo(IntPtr Handle)
+            {
+                this.Handle = Handle;
+                this.ClassName = GetWindowClassName(Handle);
+                this.Text = GetWindowText(Handle);
+                this.Rect = GetWindowRectangle(Handle);
+            }
+
+            public override string ToString()
+            {
+                return string.Format("WI: [{0}] {1} {2}", ClassName, Text, Rect);
+            }
         }
     }
 }

@@ -49,6 +49,11 @@ namespace Carnac
             keyShowView = new KeyShowView(keyShowViewModel);
             keyShowView.Show();
 
+            keyShowView.Closed += (sender, se) =>
+            {
+                Shutdown();
+            };
+
             carnac = new KeysController(keyShowViewModel.Messages, messageProvider, new ConcurrencyService(), settingsProvider);
             carnac.Start();
 
